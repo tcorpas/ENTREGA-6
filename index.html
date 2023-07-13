@@ -28,7 +28,9 @@
       .filter((w) => (w!==""))         // remove empty string elem
 
   // TODO
-  const word_array = (text) => []
+  const word_array = (text) => [clean_string(text)
+    .split(" ")
+    .filter((w) => w !== "")]
 
   const sentence_array = (text) =>
       clean_string(text)     
@@ -53,7 +55,7 @@
     let {text, view} = getIO();
 
     let result =  `Caracteres: ${char_array(text).length}\n`; 
-        result += `Palabras: ${"No implementado"/*TO DO*/}\n`;
+        result += `Palabras: ${word_array(text).length}\n`;
         result += `Frases: ${sentence_array(text).length}\n`;
         result += `Lineas: ${text.split("\n").length}\n`;
     
@@ -77,8 +79,24 @@
   };
 
   // TODO
-  const word_index = () => {
+  const normalizeWord = (word) => {
+  return word.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   };
+
+  const word_index = () => {
+  let { text, view } = getIO();
+
+  let ordered_words = word_array(text)
+    .map((word) => normalizeWord(word))
+    .sort();
+
+  let result = repetitions(ordered_words)
+    .map((el) => `${el.s}: ${el.n}`)
+    .join("\n");
+
+  view.innerHTML = result;
+};
+
 
   const sentence_index = () => {
     let {text, view} = getIO();
@@ -116,7 +134,24 @@
 
   // TODO
   const search_words = () => {
+  let { text, view, search } = getIO();
+
+  let searched_words = word_array(text)
+    .filter((word) => normalizeWord(word).includes(normalizeWord(search)));
+
+  let ordered_searched_words = searched_words
+    .map((word) => normalizeWord(word))
+    .sort();
+
+  let result = `Hay ${searched_words.length} palabras que contienen '${search}'.\n\n`;
+
+  result += repetitions(ordered_searched_words)
+    .map((el) => `${el.n} repeticiones de:   ${el.s}`)
+    .join("\n");
+
+  view.innerHTML = result;
   };
+
 
   const search_sentences = () => {
     let {text, view, search} = getIO();
